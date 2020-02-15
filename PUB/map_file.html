@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Google Maps Tracking</title>
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.19.0.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1> Live Google Maps </h1>
+            <div id="map-canvas" style="width:600px;height:400px"></div>
+        </div>
+    
+        <script>
+        window.lat = 11.637727;
+        window.lng = 75.79087;
+    
+        var map;
+        var mark;
+        var lineCoords = [];
+          
+        var initialize = function() {
+          map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
+          mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
+        };
+    
+        window.initialize = initialize;
+    
+        var redraw = function(payload) {
+          lat = payload.message.lat;
+          lng = payload.message.lng;
+    
+          map.setCenter({lat:lat, lng:lng, alt:0});
+          mark.setPosition({lat:lat, lng:lng, alt:0});
+          
+          lineCoords.push(new google.maps.LatLng(lat, lng));
+    
+          var lineCoordinatesPath = new google.maps.Polyline({
+            path: lineCoords,
+            geodesic: true,
+            strokeColor: '#2E10FF'
+          });
+          
+          lineCoordinatesPath.setMap(map);
+        };
+    
+        var pnChannel = "map3-channel";
+    
+        var pubnub = new PubNub({
+          publishKey:   'pub-c-74d501d6-2e24-4737-b432-94442bd83507',
+          subscribeKey: 'sub-c-96396ae0-500d-11ea-bf00-e20787371c02'
+        });
+    
+        pubnub.subscribe({channels: [pnChannel]});
+        pubnub.addListener({message:redraw});
+
+        setInterval(function() {
+          pubnub.publish({channel:pnChannel, message:{lat:window.lat + 0.001, lng:window.lng + 0.01}});
+        }, 500);
+
+        var coords = new Array();
+        coords.push([window.lat, window.long]);
+
+        var parsedCSV = d3.csv.parseRows("parsed_coordinates.csv");
+        parsedCSV.forEach(function(d, i){
+            if (i == 0) return true; // skip the header
+            coords.push([d.id, d.value]);
+        })
+
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyABZm6Z_UOFebgfTZCarocPQEErmn9kP7U&callback=initialize"></script>
+      </body>
+    </html>
