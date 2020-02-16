@@ -79,8 +79,8 @@
     var pnChannel = "map-channel";
 
     var pubnub = new PubNub({
-      publishKey:   'pub-c-74d501d6-2e24-4737-b432-94442bd83507',
-      subscribeKey: 'sub-c-96396ae0-500d-11ea-bf00-e20787371c02'
+      publishKey:   '',
+      subscribeKey: ''
     });
 
     pubnub.subscribe({channels: [pnChannel]});
@@ -89,6 +89,6 @@
     var iter = 0;
 
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCRAzB-3zfz2lOkBGlVdL3msdr5eHVvdbA&callback=initialize"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=GOOGLE_MAPS_API_KEY&callback=initialize"></script>
   </body>
 </html>
