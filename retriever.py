@@ -1,3 +1,5 @@
+# the firebase retriever module
+# to be run constantly
 import firebase_admin
 from firebase_admin import credentials, firestore
 

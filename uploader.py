@@ -1,3 +1,5 @@
+# the firebase uploader plugin
+# to be run constantly using scheduler
 import firebase_admin
 from firebase_admin import credentials, firestore
 
