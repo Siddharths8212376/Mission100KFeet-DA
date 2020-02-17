@@ -6,7 +6,30 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
     <script type="text/javascript" src="coords.json"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyABZm6Z_UOFebgfTZCarocPQEErmn9kP7U",
+    authDomain: "miniproject-266317.firebaseapp.com",
+    databaseURL: "https://miniproject-266317.firebaseio.com",
+    projectId: "miniproject-266317",
+    storageBucket: "miniproject-266317.appspot.com",
+    messagingSenderId: "701603913533",
+    appId: "1:701603913533:web:86cc4f92fa8529c7716f54",
+    measurementId: "G-5CJF8TW6ML"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
   </head>
   <body>
     <div class="container">
@@ -22,21 +45,33 @@
 
     $.getJSON("coords_new.json", function(json) {
     console.log(json); // this will show the info it in firebug console
-    var iter = 0;
+    var iter = { it: 0};
     console.log(new Date().getTime());
     setInterval(function() {
       // pubnub.publish({channel:pnChannel, message:circlePoint(new Date().getTime()/1000)});
-      pubnub.publish({channel:pnChannel, message:testCoords(iter++, json)});
+      pubnub.publish({channel:pnChannel, message:testCoords(iter, json)});
     }, 100);
     
 });
 
 
     function testCoords(iter, coords_){
-        window.lat = coords_[iter].LAT;
-        window.lng = coords_[iter].LONG;
-
+      var error_found = false;
+      try{
+        window.lat = coords_[iter.it].LAT;
+        window.lng = coords_[iter.it].LONG;
+        iter.it += 1;  
         return {lat:window.lat, lng:window.lng};
+      }
+      catch(error){
+        if(error_found == false){
+        error_found = true;
+        iter.it -= 1;
+        // console.error(error);
+        console.log(iter.it);
+        }
+        console.log(iter.it);
+      }
     }
 
     var map;
