@@ -13,7 +13,7 @@ default_app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 def parse():
-    data = open('mission_flight/lora_final.txt', encoding='utf-8', errors='ignore')
+    data = open('mission_flight/raw_data.txt', encoding='utf-8', errors='ignore')
     def is_number(s):
         try:
             float(s)
