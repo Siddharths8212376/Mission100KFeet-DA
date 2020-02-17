@@ -4,9 +4,16 @@ import pandas as pd
 import numpy as np 
 import schedule
 import time
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+
+cred = credentials.Certificate('./ServiceAccountKey.json')
+default_app = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 def parse():
-    data = open('./mission_flight/lora_final.txt', encoding='utf-8', errors='ignore')
+    data = open('mission_flight/lora_final.txt', encoding='utf-8', errors='ignore')
     def is_number(s):
         try:
             float(s)
@@ -81,18 +88,18 @@ def parse():
 
     # csv to json conversion using pandas
     csv_file = pd.DataFrame(pd.read_csv('parsed_coordinates.csv'))
-    csv_file.to_json('./PUB/coords_new.json', orient='records')
+    csv_file.to_json('coords_new.json', orient='records')
 
-schedule.every(5).seconds.do(parse)
+# schedule.every(5).seconds.do(parse)
 
-ans = 1
-while True:
-    # if ans == 0:
-    #     break
-    schedule.run_pending()
-    time.sleep(1)
+# ans = 1
+# while True:
+#     # if ans == 0:
+#     #     break
+#     schedule.run_pending()
+#     time.sleep(1)
     
-# parse()
+parse()
 
     
     
