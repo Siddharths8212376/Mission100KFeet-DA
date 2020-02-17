@@ -54,13 +54,14 @@
     
 });
 
+var error_found = false;
 
     function testCoords(iter, coords_){
-      var error_found = false;
+      
       try{
         window.lat = coords_[iter.it].LAT;
-        window.lng = coords_[iter.it].LONG;
-        iter.it += 1;  
+        window.lng = coords_[iter.it].LONG; 
+        iter.it += 1;
         return {lat:window.lat, lng:window.lng};
       }
       catch(error){
@@ -70,7 +71,7 @@
         // console.error(error);
         console.log(iter.it);
         }
-        console.log(iter.it);
+        
       }
     }
 
