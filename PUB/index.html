@@ -1,73 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>Publish Subscribe Tutorial</title>
-</head>
+  <head>
+    <title>Google Maps Example</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.19.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+    <script type="text/javascript" src="coords.json"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Live Map Marker</h1>
+      <div id="map-canvas" style="width:600px;height:400px"></div>
+    </div>
 
-<body>
-<input id="publish-button" type="submit" value="Click here to Publish"/>
-</body>
+    <script>
+    window.lat = 11.637727;
+    window.lng = 75.79087;
 
-<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.21.7.min.js"></script>
-<script>
 
-  const uuid = PubNub.generateUUID();
-  const pubnub = new PubNub({
-    publishKey: "",
-    subscribeKey: "",
-    uuid: uuid
-  });
 
-  const button = document.getElementById('publish-button');
+    $.getJSON("coords_new.json", function(json) {
+    console.log(json); // this will show the info it in firebug console
+    var iter = 0;
+    console.log(new Date().getTime());
+    setInterval(function() {
+      // pubnub.publish({channel:pnChannel, message:circlePoint(new Date().getTime()/1000)});
+      pubnub.publish({channel:pnChannel, message:testCoords(iter++, json)});
+    }, 100);
+    
+});
 
-  button.addEventListener('click', () => {
-    pubnub.publish({
-      channel : "pubnub_onboarding_channel",
-      message : {"sender": uuid, "content": "Hello From JavaScript SDK"}
-    }, function(status, response) {
-      //Handle error here
+
+    function testCoords(iter, coords_){
+        window.lat = coords_[iter].LAT;
+        window.lng = coords_[iter].LONG;
+
+        return {lat:window.lat, lng:window.lng};
+    }
+
+    var map;
+    var mark;
+    var lineCoords = [];
+    var image = 'hot-balloon-icon.png';
+
+    var initialize = function() {
+      map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:14});
+      mark = new google.maps.Marker({
+        position:{lat:lat, lng:lng},
+         map:map,
+         icon: image
+      });
+    };
+
+    window.initialize = initialize;
+
+    var redraw = function(payload) {
+      lat = payload.message.lat;
+      lng = payload.message.lng;
+
+      map.setCenter({lat:lat, lng:lng, alt:0});
+      mark.setPosition({lat:lat, lng:lng, alt:0});
+
+      lineCoords.push(new google.maps.LatLng(lat, lng));
+    
+    var lineCoordinatesPath = new google.maps.Polyline({
+      path: lineCoords,
+      geodesic: true,
+      strokeColor: '#2E10FF'
+      
     });
-  });
+    
+    lineCoordinatesPath.setMap(map);
+    lineCoordinatesPath.setOptions({strokeWeight: 2});
+    };
+    
 
-  pubnub.subscribe({
-    channels: ['pubnub_onboarding_channel'],
-    withPresence: true
-  });
+    var pnChannel = "map-channel";
 
-  pubnub.addListener({
-    message: function(event) {
-      let pElement = document.createElement('p');
-      pElement.appendChild(document.createTextNode(event.message.content));
-      document.body.appendChild(pElement);
-    },
-    presence: function(event) {
-      let pElement = document.createElement('p');
-      pElement.appendChild(document.createTextNode(event.uuid + " has joined. That's you!"));
-      document.body.appendChild(pElement);
-    }
-  });
+    var pubnub = new PubNub({
+      publishKey:   'pub-c-74d501d6-2e24-4737-b432-94442bd83507',
+      subscribeKey: 'sub-c-96396ae0-500d-11ea-bf00-e20787371c02'
+    });
 
-  pubnub.history(
-    {
-      channel: 'pubnub_onboarding_channel',
-      count: 10,
-      stringifiedTimeToken: true,
-    },
-    function (status, response) {
-      let pElement = document.createElement('h3');
-      pElement.appendChild(document.createTextNode('historical messages'));
-      document.body.appendChild(pElement);
+    pubnub.subscribe({channels: [pnChannel]});
+    pubnub.addListener({message:redraw});
 
-      pElement = document.createElement('ul');
-      let msgs = response.messages;
-      for (let i in msgs) {
-        msg = msgs[i];
-        let pElement = document.createElement('li');
-        pElement.appendChild(document.createTextNode('sender: ' + msg.entry.sender + ', content: ' + msg.entry.content));
-        document.body.appendChild(pElement);
-      }
-    }
-  );
+    var iter = 0;
 
-</script>
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCRAzB-3zfz2lOkBGlVdL3msdr5eHVvdbA&callback=initialize"></script>
+  </body>
 </html>
