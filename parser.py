@@ -83,16 +83,16 @@ def parse():
     csv_file = pd.DataFrame(pd.read_csv('parsed_coordinates.csv'))
     csv_file.to_json('./PUB/coords_new.json', orient='records')
 
-# schedule.every(5).seconds.do(parse)
+schedule.every(5).seconds.do(parse)
 
-# ans = 1
-# while True:
-#     # if ans == 0:
-#     #     break
-#     schedule.run_pending()
-#     time.sleep(1)
+ans = 1
+while True:
+    # if ans == 0:
+    #     break
+    schedule.run_pending()
+    time.sleep(1)
     
-parse()
+# parse()
 
     
     
